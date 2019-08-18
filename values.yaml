@@ -1,0 +1,12 @@
+replicaCount: 1
+image:
+  repository: dutchcoders/transfer.sh
+  tag: latest
+  pullPolicy: Always
+service:
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+resources: {}
+volume:
+  hostPath: /mnt/transfer

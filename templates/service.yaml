@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ template "fullname" . }}
+    release: {{ .Release.Name }}
+    chart: "{{ .Chart.Name }}"
+    tier:  {{ .Release.Name }}
+spec:
+  selector:
+    app: {{ template "fullname" . }}
+    release: {{ .Release.Name }}
+    tier:  {{ .Release.Name }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.externalPort }}
+      targetPort: {{ .Values.service.internalPort }}
+  type: {{ .Values.service.type }}

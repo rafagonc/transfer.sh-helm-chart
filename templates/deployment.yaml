@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+  labels:
+    app: {{ template "fullname" . }}
+    release: {{ .Release.Name }}
+    chart: "{{ .Chart.Name }}"
+    tier: {{ .Release.Name }}
+spec:
+  replicas: {{ default 5 .Values.replicaCount }}
+  minReadySeconds: 10
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        release: {{ .Release.Name }}
+        chart: "{{ .Chart.Name }}"
+        tier: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: transfer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["--provider", "local", "--basedir", "{{ .Values.volume.hostPath }}"]
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+              name: http-server
+          volumeMounts:
+            - name: transfer-storage
+              mountPath: {{ .Values.volume.hostPath }}
+          resources:
+{{ toYaml .Values.resources.captcha | indent 12 }}
+      volumes:
+      - name: transfer-storage
+        hostPath:
+          path: {{ .Values.volume.hostPath }}
+          type: Directory
